@@ -1,0 +1,104 @@
+RUNBOOK: Kubernetes Pod Crash Troubleshooting
+Author: DevOps Team
+Last Updated: 2026-01-15
+
+SYMPTOMS
+- Pod status shows CrashLoopBackOff
+- Pod status shows OOMKilled
+- Pod keeps restarting repeatedly
+
+IMMEDIATE STEPS
+1. Check pod logs: kubectl logs <pod-name> --previous
+2. Describe the pod: kubectl describe pod <pod-name>
+3. Check resource limits: kubectl get pod <pod-name> -o yaml | grep -A5 resources
+
+COMMON CAUSES AND FIXES
+
+CrashLoopBackOff:
+- Application is failing to start. Check logs for stack traces.
+- Missing environment variables. Verify all required envs are set in the deployment.
+- Fix: kubectl set env deployment/<name> KEY=VALUE
+
+OOMKilled:
+- Pod exceeded memory limit. Increase memory in deployment spec.
+- Fix: Edit deployment and raise memory limit from 512Mi to 1Gi
+- kubectl edit deployment <name>
+
+Liveness Probe Failing:
+- App takes too long to start. Increase initialDelaySeconds in probe config.
+- Fix: Set initialDelaySeconds to 60 instead of 10
+
+ESCALATION
+- If pod still crashes after above steps, check node pressure:
+  kubectl describe nodes | grep -A5 Conditions
+- If node is under memory pressure, cordon and drain it:
+  kubectl cordon <node-name>
+  kubectl drain <node-name> --ignore-daemonsets
+
+---
+
+RUNBOOK: AWS S3 Bucket Access Denied
+Author: DevOps Team
+Last Updated: 2026-02-10
+
+SYMPTOMS
+- Application throwing AccessDenied on S3 operations
+- AWS CLI returns 403 Forbidden
+
+IMMEDIATE STEPS
+1. Check IAM role attached to EC2/ECS: aws sts get-caller-identity
+2. Verify bucket policy: aws s3api get-bucket-policy --bucket <bucket-name>
+3. Check if bucket is public or private: aws s3api get-bucket-acl --bucket <bucket-name>
+
+COMMON CAUSES AND FIXES
+
+Missing IAM Permission:
+- Role lacks s3:GetObject or s3:PutObject
+- Fix: Add inline policy to the IAM role with required S3 actions
+
+Bucket Policy Conflict:
+- Bucket policy explicitly denies the role
+- Fix: Update bucket policy to allow the specific IAM role ARN
+
+KMS Encryption Issue:
+- Bucket uses KMS key and role lacks kms:Decrypt permission
+- Fix: Add kms:Decrypt and kms:GenerateDataKey to the IAM role
+
+ESCALATION
+- If issue persists, enable S3 server access logging:
+  aws s3api put-bucket-logging --bucket <bucket-name>
+- Check CloudTrail for exact denial reason in the last 1 hour
+
+---
+
+RUNBOOK: CI/CD Pipeline Failure - GitHub Actions
+Author: DevOps Team
+Last Updated: 2026-03-01
+
+SYMPTOMS
+- GitHub Actions workflow failing
+- Docker build errors
+- Deployment step timing out
+
+IMMEDIATE STEPS
+1. Check the failed step in Actions tab on GitHub
+2. Look for exit code in the logs
+3. Re-run failed jobs to check if it is flaky
+
+COMMON CAUSES AND FIXES
+
+Docker Build Failure:
+- Base image not found or registry rate limited
+- Fix: Switch to a pinned image version or use ECR mirror
+
+Secret Not Found:
+- GitHub secret missing or name mismatch
+- Fix: Go to repo Settings > Secrets and verify exact secret name
+
+Deployment Timeout:
+- ECS or K8s rollout taking too long
+- Fix: Check target group health in ALB, check pod events with kubectl get events
+
+ESCALATION
+- If pipeline consistently fails, disable auto-deploy and investigate manually
+- Notify team in Slack #devops-alerts channel
