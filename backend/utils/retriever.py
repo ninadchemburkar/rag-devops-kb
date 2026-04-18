@@ -1,16 +1,9 @@
 import chromadb
-from chromadb.utils import embedding_functions
 
 def buildIndex(chunks):
     try:
         client = chromadb.EphemeralClient()
-        ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="all-MiniLM-L6-v2"
-        )
-        collection = client.get_or_create_collection(
-            name="devopsKb",
-            embedding_function=ef
-        )
+        collection = client.get_or_create_collection(name="devopsKb")
         docs = [c.page_content for c in chunks]
         ids = [f"doc_{i}" for i in range(len(docs))]
         collection.add(documents=docs, ids=ids)
