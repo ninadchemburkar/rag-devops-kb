@@ -20,7 +20,7 @@ indexStore = {}
 @app.post("/upload")
 async def upload(files: List[UploadFile] = File(...)):
     try:
-        chunks = loadDocs(files)
+        chunks = await loadDocs(files)
         collection = buildIndex(chunks)
         indexStore["collection"] = collection
         return {"status": "ok", "chunks": len(chunks)}
