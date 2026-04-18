@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useDropzone } from 'react-dropzone';
 import './App.css';
 
-const API = 'http://localhost:8000';
+const API = 'https://rag-devops-kb-production.up.railway.app';
 
 export default function App() {
   const [apiKey, setApiKey] = useState('');
