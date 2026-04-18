@@ -140,7 +140,7 @@ export default function App() {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ flex: 1, padding: 24, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16, scrollbarWidth: 'none', msOverflowStyle: 'none' } as React.CSSProperties}>
 
           {/* Stat cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
