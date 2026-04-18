@@ -14,8 +14,8 @@ def loadDocs(uploadedFiles):
         raise ValueError("No documents loaded. Please upload at least one .txt file.")
     
     splitter = RecursiveCharacterTextSplitter(
-        chunkSize=500,
-        chunkOverlap=50
+        chunk_size=500,
+        chunk_overlap=50
     )
     chunks = splitter.create_documents(raw)
     return chunks

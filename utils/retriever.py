@@ -3,7 +3,7 @@ from chromadb.utils import embedding_functions
 
 def buildIndex(chunks):
     try:
-        client = chromadb.Client()
+        client = chromadb.EphemeralClient()
         ef = embedding_functions.SentenceTransformerEmbeddingFunction(
             model_name="all-MiniLM-L6-v2"
         )
